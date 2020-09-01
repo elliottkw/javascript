@@ -12,11 +12,22 @@ class Book {
 
 class UI {
     static viewBooks() {
-
+        const books = Data.getBooks();
+        books.forEach((book) => UI.addBookToList(book));
     }
 
-    static addBookToList() {
+    static addBookToList(book) {
+        const bookList = document.querySelector('#libros-list');
 
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${book.title}</td>
+            <td>${book.author}</td>
+            <td>${book.isbn}</td>
+            <td><a href="#" class="btn btn-danger btn-sm delete">X</a></td>
+        `;
+
+        bookList.appendChild(row);
     }
 
     static removeBook() {
@@ -65,6 +76,11 @@ class Data {
 }
 
 /**
+ * Load page
+ */
+document.addEventListener('DOMContentLoad', UI.viewBooks());
+
+/**
  * Control submit event
  */
 document.querySelector('#libro-form').addEventListener('submit', (e) => {
@@ -83,5 +99,6 @@ document.querySelector('#libro-form').addEventListener('submit', (e) => {
         book = new Book(title, author, isbn);
         Data.addBook(book);
         UI.cleanInfo();
+        UI.addBookToList(book);
     }
 });

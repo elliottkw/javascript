@@ -30,8 +30,10 @@ class UI {
         bookList.appendChild(row);
     }
 
-    static removeBook() {
-
+    static removeBook(element) {
+        if (element.classList.contains('delete')) {
+            element.parentElement.parentElement.remove();
+        }
     }
 
     static viewAlert(message, type) {
@@ -67,11 +69,18 @@ class Data {
     static addBook(book) {
         const books = Data.getBooks();
         books.push(book);
-        localStorage.setItem("books", JSON.stringify(books));
+        localStorage.setItem('books', JSON.stringify(books));
     }
 
-    static removeBook() {
+    static deleteBook(isbn) {
+        const books = Data.getBooks();
 
+        books.forEach((book, index) => {
+            if (book.isbn === isbn) {
+                books.splice(index, 1);
+            }
+        });
+        localStorage.setItem('books', JSON.stringify(books));
     }
 }
 
@@ -83,22 +92,30 @@ document.addEventListener('DOMContentLoad', UI.viewBooks());
 /**
  * Control submit event
  */
-document.querySelector('#libro-form').addEventListener('submit', (e) => {
-    e.preventDefault();
+document.querySelector('#libro-form').addEventListener('submit', (event) => {
+    event.preventDefault();
 
     // Get values of the fields
     const title = document.querySelector('#titulo').value;
     const author = document.querySelector('#autor').value;
     const isbn = document.querySelector('#isbn').value;
 
-    console.log(document.querySelector('titulo'));
-
     if (title === '' || author === '' || isbn === '') {
         UI.viewAlert('Por favor ingrese todos los datos', 'danger');
     } else {
         book = new Book(title, author, isbn);
         Data.addBook(book);
-        UI.cleanInfo();
         UI.addBookToList(book);
+        UI.viewAlert('Libro agregado a la colección', 'success');
+        UI.cleanInfo();
     }
+});
+
+/**
+ * Control click event
+ */
+document.querySelector('#libros-list').addEventListener('click', (element) => {
+    UI.removeBook(element.target);
+    Data.deleteBook(element.target.parentElement.previousElementSibling.textContent);
+    UI.viewAlert('Libro eliminado', 'success');
 });
